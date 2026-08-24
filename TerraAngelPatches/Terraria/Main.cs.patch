@@ -12,7 +12,7 @@
      private static float _uiScaleWanted = 1f;
      private static float _uiScaleUsed = 1f;
      public static float GameZoomTarget = 1f;
-+    private const float MinGameZoomTarget = 0.05f;
++    private const float MinGameZoomTarget = 1f / 3f;
      public static bool SettingsUnlock_WorldEvil;
      public static bool SettingsEnabled_MinersWobble = true;
      public static bool SettingsEnabled_AutoReuseAllItems = false;
@@ -34,7 +34,7 @@
 -    public const int MaxWorldViewSizeHeight = 1200;
 +    public const int MaxWorldViewSizeHeight = 4320;
 -    public static readonly Microsoft.Xna.Framework.Point MaxWorldViewSize = new Microsoft.Xna.Framework.Point(1920, 1200);
-+    public static readonly Microsoft.Xna.Framework.Point MaxWorldViewSize = new Microsoft.Xna.Framework.Point(6480, 4320);
++    public static readonly Microsoft.Xna.Framework.Point MaxWorldViewSize = new Microsoft.Xna.Framework.Point(MaxWorldViewSizeWidth, MaxWorldViewSizeHeight);
 -    public static int maxScreenW = 1920;
 +    public static int maxScreenW = 6480;
 -    public static int maxScreenH = 1200;
@@ -122,6 +122,68 @@
      public static bool CanUpdateGameplay { get; private set; }
  
      public static Matrix UIScaleMatrix => _uiScaleMatrix;
+@@ -1851,7 +_,9 @@
+         }
+     }
+ 
++    // TerraAngel: use the currently scaled (zoomed) view to decide the teleport blackout distance, so that teleporting
++    // within the visible view does not black the screen (those tiles are already rendered), only a far jump does.
+-    public static float BlackFadeDist => Camera.UnscaledSize.Length() / 2f + 100f;
++    public static float BlackFadeDist => Camera.ScaledSize.Length() / 2f + 100f;
+     public static bool IsCameraTrackingObject
+     {
+         get
+@@ -2551,9 +_,50 @@
+             }
+         }
+ 
++        // TerraAngel: size the render-target cap dynamically to the graphics profile's max texture size, so the
++        // world scene targets can grow as large as the GPU allows (e.g. 8192 on HiDef) instead of a fixed 4096.
++        UpdateRenderTargetMaxSize();
+         instance.EnsureRenderTargetContent();
+     }
+ 
++    // TerraAngel: read the current graphics profile's max texture size and use it as the render-target cap, so the
++    // world scene targets can grow as large as the hardware allows.
++    private static void UpdateRenderTargetMaxSize()
++    {
++        try
++        {
++            Type type = Assembly.GetAssembly(typeof(GraphicsProfile)).GetType("Microsoft.Xna.Framework.Graphics.ProfileCapabilities", throwOnError: false);
++            if (type == null)
++            {
++                return;
++            }
++
++            string capsName = (_selectedGraphicsProfile == GraphicsProfile.HiDef) ? "HiDef" : "Reach";
++            FieldInfo capsField = type.GetField(capsName, BindingFlags.Static | BindingFlags.NonPublic);
++            if (capsField == null)
++            {
++                return;
++            }
++
++            object caps = capsField.GetValue(null);
++            FieldInfo maxField = type.GetField("MaxTextureSize", BindingFlags.Instance | BindingFlags.NonPublic);
++            if (maxField == null)
++            {
++                return;
++            }
++
++            int maxTex = (int)maxField.GetValue(caps);
++            if (maxTex > 0)
++            {
++                _renderTargetMaxSize = maxTex;
++            }
++        }
++        catch
++        {
++            // Keep whatever value was set if reflecting the caps fails (e.g. a non-standard graphics backend).
++        }
++    }
++
+     private static void TrySupporting8K()
+     {
+         if (!Platform.IsWindows)
 @@ -2963,7 +_,6 @@
          configuration.Clear();
          configuration.Put("ResetDefaultUIScale", false);
@@ -1245,7 +1307,7 @@
                      Tile tile = Main.tile[j, i];
                      float num4 = Lighting.Brightness(j, i);
                      num4 = (float)Math.Floor(num4 * 255f) / 255f;
-@@ -62283,11 +_,10 @@
+@@ -62283,31 +_,18 @@
          }
      }
  
@@ -1258,6 +1320,98 @@
          }
  
          ReleaseTargets();
+-        int val = MaxWorldViewSize.X;
+-        _ = MaxWorldViewSize;
+-        if (SupportWideScreen && _selectedGraphicsProfile == GraphicsProfile.HiDef)
+-        {
+-            val = 4096;
+-        }
+-
+-        int num = Math.Min(base.GraphicsDevice.PresentationParameters.BackBufferWidth, val);
+-        int num2 = Math.Min(base.GraphicsDevice.PresentationParameters.BackBufferHeight, val);
+-        offScreenRange = 192;
+-        if (num + offScreenRange * 2 > _renderTargetMaxSize)
+-        {
+-            offScreenRange = (_renderTargetMaxSize - num) / 2;
+-        }
+-
+-        num += offScreenRange * 2;
+-        num2 += offScreenRange * 2;
++        // TerraAngel: size the scene render targets to the current scaled (zoomed) view so tha
++        // zooming out does not clip the world to a center square.
++        GetSceneTargetSize(out var num, out var num2, out var sceneOffScreenRange);
++        offScreenRange = sceneOffScreenRange;
++
+         try
+         {
+             if (!dedServ)
+@@ -62344,6 +_,66 @@
+         }
+     }
+ 
++    // TerraAngel: size the scene render targets to the current scaled (zoomed) view (so zoom-out isn't clipped),
++    // capped by the hardware render-target limit. Uses GameZoomTarget (updated in Update) so it doesn't lag a frame.
++    private void GetSceneTargetSize(out int width, out int height, out int offRange)
++    {
++        int backBufferWidth = base.GraphicsDevice.PresentationParameters.BackBufferWidth;
++        int backBufferHeight = base.GraphicsDevice.PresentationParameters.BackBufferHeight;
++        // GameViewMatrix isn't created until later in LoadContent, so early init falls back to the base size.
++        int contentWidth;
++        int contentHeight;
++        if (Main.GameViewMatrix == null)
++        {
++            contentWidth = backBufferWidth;
++            contentHeight = backBufferHeight;
++        }
++        else
++        {
++            float zoom = ForcedMinimumZoom * Math.Max(GameZoomTarget, MinGameZoomTarget);
++            if (zoom <= 0f)
++            {
++                zoom = 1f;
++            }
++
++            contentWidth = Math.Max((int)Math.Ceiling(backBufferWidth / zoom), backBufferWidth);
++            contentHeight = Math.Max((int)Math.Ceiling(backBufferHeight / zoom), backBufferHeight);
++        }
++
++        if (contentWidth <= 0 || contentHeight <= 0)
++        {
++            contentWidth = Math.Min(backBufferWidth, MaxWorldViewSize.X);
++            contentHeight = Math.Min(backBufferHeight, MaxWorldViewSize.X);
++        }
++
++        offRange = 192;
++        if (contentWidth + offRange * 2 > _renderTargetMaxSize)
++        {
++            offRange = Math.Max(0, (_renderTargetMaxSize - contentWidth) / 2);
++        }
++
++        if (contentHeight + offRange * 2 > _renderTargetMaxSize)
++        {
++            offRange = Math.Max(0, Math.Min(offRange, (_renderTargetMaxSize - contentHeight) / 2));
++        }
++
++        width = Math.Min(contentWidth + offRange * 2, _renderTargetMaxSize);
++        height = Math.Min(contentHeight + offRange * 2, _renderTargetMaxSize);
++    }
++
++    // TerraAngel: true when the existing scene targets are too small to cover the current scaled (zoomed) view.
++    // Used to grow the targets on demand when the player zooms out.
++    private bool SceneTargetsNeedResize()
++    {
++        if (dedServ || !targetSet || tileTarget == null)
++        {
++            return false;
++        }
++
++        GetSceneTargetSize(out var wantWidth, out var wantHeight, out _);
++        return tileTarget.Texture.Width < wantWidth || tileTarget.Texture.Height < wantHeight;
++    }
++
+     protected void DrawWires()
+     {
+         TimeLogger.StartTimestamp fromTimestamp = TimeLogger.Start();
 @@ -66130,10 +_,14 @@
      {
          if (!_isDrawingOrUpdating && IsGraphicsDeviceAvailable)
@@ -1334,6 +1488,19 @@
          TimeLogger.PrepareRequests.AddTime(fromTimestamp3);
          if (loadMap)
          {
+@@ -66260,6 +_,12 @@
+             ReleaseTargets();
+         }
+ 
++        // TerraAngel: grow the scene targets on demand when the zoomed-out view no longer fits in them.
++        if (!drawToScreen && targetSet && SceneTargetsNeedResize())
++        {
++            ReleaseTargets();
++        }
++
+         if (!drawToScreen && !targetSet)
+         {
+             InitTargets();
 @@ -66273,7 +_,6 @@
  
          if (!dedServ)
@@ -1361,6 +1528,29 @@
          if (gameMenu || player[myPlayer].gravDir == 1f)
          {
              Rasterizer = RasterizerState.CullCounterClockwise;
+@@ -66996,6 +_,22 @@
+ 
+                 BlackFadeIn -= 25;
+                 spriteBatch.Draw(TextureAssets.SplashTexture16x9.Value, new Microsoft.Xna.Framework.Rectangle(0, 0, screenWidth, screenHeight), new Microsoft.Xna.Framework.Color(0, 0, 0, num20));
++                // TerraAngel: the fade is drawn with GameViewMatrix.ZoomMatrix, so a (0,0,screenW,screenH) rect only
++                // covers the center of the screen once zoomed out. Size/position it so it always covers the whole screen.
++                Vector2 fadeTranslation = Main.GameViewMatrix.Translation;
++                Vector2 fadeZoom = Main.GameViewMatrix.RenderZoom;
++                if (fadeZoom.X <= 0f)
++                {
++                    fadeZoom.X = 1f;
++                }
++
++                if (fadeZoom.Y <= 0f)
++                {
++                    fadeZoom.Y = 1f;
++                }
++
++                Rectangle fadeRect = new Rectangle((int)fadeTranslation.X, (int)fadeTranslation.Y, (int)(screenWidth / fadeZoom.X), (int)(screenHeight / fadeZoom.Y));
++                spriteBatch.Draw(TextureAssets.SplashTexture16x9.Value, fadeRect, new Microsoft.Xna.Framework.Color(0, 0, 0, num20));
+             }
+ 
+             spriteBatch.End();
 @@ -67042,20 +_,7 @@
              mouseRightRelease = true;
          }
