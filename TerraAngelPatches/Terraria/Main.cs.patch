@@ -1528,10 +1528,12 @@
          if (gameMenu || player[myPlayer].gravDir == 1f)
          {
              Rasterizer = RasterizerState.CullCounterClockwise;
-@@ -66996,6 +_,22 @@
+@@ -66995,7 +_,23 @@
+                 }
  
                  BlackFadeIn -= 25;
-                 spriteBatch.Draw(TextureAssets.SplashTexture16x9.Value, new Microsoft.Xna.Framework.Rectangle(0, 0, screenWidth, screenHeight), new Microsoft.Xna.Framework.Color(0, 0, 0, num20));
+-                spriteBatch.Draw(TextureAssets.SplashTexture16x9.Value, new Microsoft.Xna.Framework.Rectangle(0, 0, screenWidth, screenHeight), new Microsoft.Xna.Framework.Color(0, 0, 0, num20));
++
 +                // TerraAngel: the fade is drawn with GameViewMatrix.ZoomMatrix, so a (0,0,screenW,screenH) rect only
 +                // covers the center of the screen once zoomed out. Size/position it so it always covers the whole screen.
 +                Vector2 fadeTranslation = Main.GameViewMatrix.Translation;
