@@ -51,7 +51,7 @@ To update TerraAngel and pull any changes, run `./fast.ps1 -Update`
 
 Then run `./fast.ps1 -Compile` to build the updated client
 
-(Or run `./fast.ps1 -UpdateGame -Decompile -Update -Compile` to do all of these at once)
+(Or run `./fast.ps1 -Download -UpdateGame -Decompile -Update -Compile` to do all of these at once)
 <h2>
 Development
 </h2>

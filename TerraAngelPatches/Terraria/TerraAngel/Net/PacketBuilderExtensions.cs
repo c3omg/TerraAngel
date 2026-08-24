@@ -201,8 +201,8 @@ public static class PacketBuilderExtensions
         pb.MakePacket(MessageID.LiquidUpdate, b => b
             .Write((short)x)
             .Write((short)y)
-            .Write(amount)
-            .Write(liquidType));
+            .Write((byte)amount)
+            .Write((byte)liquidType));
         return pb;
     }
 
