@@ -1,7 +1,3 @@
-[submodule "TerraAngelSetup/DotnetPatcher"]
-	path = TerraAngelSetup/DotnetPatcher
-	url = https://github.com/UnrealMultiple/DotnetPatcher.git
-	branch = master
 [submodule "CSharpEval"]
 	path = CSharpEval
 	url = https://github.com/UnrealMultiple/CSharpEval.git
@@ -12,3 +8,6 @@
 [submodule "TrProtocol"]
 	path = TrProtocol
 	url = https://github.com/UnrealMultiple/CedaryCat.TrProtocol.git
+[submodule "TerraAngelSetup/DotnetPatcher"]
+	path = TerraAngelSetup/DotnetPatcher
+	url = https://github.com/c3omg/DotnetPatcher
