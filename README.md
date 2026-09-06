@@ -3,7 +3,7 @@
 TerraAngel
 </h1>
 <p align="center">
-TerraAngel is a modern and feature-rich utility client for Terraria.
+TerraAngel is a modern and feature-rich utility client for Terraria. fork with my own stuff :&nbsp;&nbsp;)
 </p>
 <br>
 
@@ -13,31 +13,35 @@ Installation
 
 Please note that this client is currently only available for Windows and Linux
 
-In order to use it, you will need to have [git](https://git-scm.com/download/win), [powershell7](https://learn.microsoft.com/en-us/powershell/scripting/install/install-powershell) and the [dotnet 10 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/10.0) installed on your machine
+In order to use it, you will need to have [git](https://git-scm.com/install/), [PowerShell 7](https://learn.microsoft.com/en-us/powershell/scripting/install/install-powershell), [.NET 8 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/8.0) and [.NET 10 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/10.0) installed on your machine
 
 Be sure to restart your computer after you install these
 
 To install the client, follow these steps:
 
-  1. Open a terminal or command prompt of powershell7
+  1. Open Terminal or Command Prompt
 
-  2. Clone the repository by running the following command: `git clone https://github.com/UnrealMultiple/TerraAngel.git --recursive`
+  2. Run the following command
+  ```pwsh
+  git clone https://github.com/c3omg/TerraAngel.git --recursive
+  ```
+  3. Run the command `cd TerraAngel`. If you are on **Windows** you can run `./fast.ps1 -Start` and continue on to step 4<br><details><summary>For Linux Users</summary>
 
-  ![image](https://user-images.githubusercontent.com/87276335/182042166-c967bcba-cd52-4372-ad75-3bc5faaac0ea.png)
+      1. Right click Terraria in your Steam library and press "Properties"
+      
+      2. Click "Compatibility" and enable "Force the use of a specific Steam Play compatibility tool" (Proton version doesn't matter, you just need Steam to download the Windows binary instead)
 
-  3. Run `cd TerraAngel` and `./fast.ps1 -Download -Start` and wait for it to finish. This may take a few minutes</br>
-  
-     PS: During this step the console may ask you for your steam username and password if you are on Linux platform</br>
-     If you dont want to provide your steam account, or you want to use exist Terraria binaries, you can put the binaries under `./steam/Terraria` with `Terraria.exe` located right under this folder</br>
-     Then run `./fast.ps1 -Download -Start` again
+      3. Once Steam finishes downloading, right click Terraria in your library again. Hover over "Manage" and press "Browse local files"
 
-  ![image](https://user-images.githubusercontent.com/87276335/182042235-9ce87d19-61ee-4636-b3ab-eee0ccb0e428.png)
+      4. Copy all the files to `./TerraAngel/steam/Terraria` (create the Terraria folder if it doesn't exist)
 
-  4. If the process finishes successfully, the client will be built in the `src/TerraAngel/Terraria/bin/Release/net10.0/` folder
+      5. Run `pwsh`, then run `./fast.ps1 -Download -Start`
+      
+      > In case you get any errors about a missing dependency, make sure `curl`, `7zip`, `msitools`, and `tar` are installed from your package manager.
 
-  ![image](https://user-images.githubusercontent.com/87276335/182298612-c9aa34a2-9df7-4047-9a4f-a465c95419a1.png)
+  </details>
 
-  ![image](https://user-images.githubusercontent.com/87276335/182298616-e9e2299e-611c-4b7d-823e-b4d6ff828c42.png)
+  4. Wait for it to finish. This may take a few minutes. Once it completes successfully, the client will be built in `.\src\TerraAngel\Terraria\bin\Release\net10.0`
 
 <h2>
 Updating
