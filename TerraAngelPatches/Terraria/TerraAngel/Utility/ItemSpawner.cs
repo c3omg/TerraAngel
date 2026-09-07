@@ -5,10 +5,14 @@ public static class ItemSpawner
     public static Item SpawnItemInMouse(int type, int stack = 1, bool syncWithServer = true, bool overrideItem = false)
     {
         Main.playerInventory = true;
+        if (Main.mouseItem.type == type)
+        {
+            Main.mouseItem.stack = Utils.Clamp(Main.mouseItem.stack + stack, 1, Main.mouseItem.maxStack);
+        }
         if (Main.mouseItem.type == 0 || overrideItem)
         {
             Main.mouseItem.SetDefaults(type);
-            Main.mouseItem.stack = Main.mouseItem.maxStack;
+            // Main.mouseItem.stack = Main.mouseItem.maxStack; // feels a little redundant
             Main.mouseItem.stack = Utils.Clamp(stack, 1, Main.mouseItem.maxStack);
 
             if (syncWithServer)

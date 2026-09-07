@@ -98,10 +98,10 @@ public class ItemBrowserTool : Tool
         switch (GiveMode)
         {
             case ItemGiveMode.InMouse:
-                ItemSpawner.SpawnItemInMouse(type, 9999, SyncWithServer);
+                ItemSpawner.SpawnItemInMouse(type, Main.keyState.IsKeyDown(Keys.LeftShift) ? 9999 : 1, SyncWithServer);
                 break;
             case ItemGiveMode.DropInWorld:
-                ItemSpawner.SpawnItemInWorld(Main.LocalPlayer.Center, type, Vector2.Zero, 9999, SyncWithServer);
+                ItemSpawner.SpawnItemInWorld(Main.LocalPlayer.Center, type, Vector2.Zero, Main.keyState.IsKeyDown(Keys.LeftShift) ? 9999 : 1, SyncWithServer);
                 break;
         }
     }

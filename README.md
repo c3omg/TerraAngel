@@ -7,9 +7,17 @@ TerraAngel is a modern and feature-rich utility client for Terraria. fork with m
 </p>
 <br>
 
-<h2>
-Installation
-</h2>
+## fork changes and plans
+
+- [x] additional editable properties and organization in item editor
+- [x] change behavior of giving items from item browser
+  - click for only 1, hold shift and click for a full stack. multiple clicks will add to the stack
+- [ ] options to control player luck
+- [ ] options to control fishing catch quality
+- [ ] make your own aliases for chat
+- whatever else later on that i feel would be useful (feel free to open an issue for suggestions)
+
+## Installation
 
 Please note that this client is currently only available for Windows and Linux
 
@@ -22,7 +30,7 @@ To install the client, follow these steps:
   1. Open Terminal or Command Prompt
 
   2. Run the following command
-  ```pwsh
+  ```bash
   git clone https://github.com/c3omg/TerraAngel.git --recursive
   ```
   3. Run the command `cd TerraAngel`. If you are on **Windows** you can run `./fast.ps1 -Start` and continue on to step 4<br><details><summary>For Linux Users</summary>
@@ -33,7 +41,7 @@ To install the client, follow these steps:
 
       3. Once Steam finishes downloading, right click Terraria in your library again. Hover over "Manage" and press "Browse local files"
 
-      4. Copy all the files to `./TerraAngel/steam/Terraria` (create the Terraria folder if it doesn't exist)
+      4. Copy all the files to `./steam/Terraria` (create the Terraria folder if it doesn't exist)
 
       5. Run `pwsh`, then run `./fast.ps1 -Download -Start`
       
@@ -41,11 +49,9 @@ To install the client, follow these steps:
 
   </details>
 
-  4. Wait for it to finish. This may take a few minutes. Once it completes successfully, the client will be built in `.\src\TerraAngel\Terraria\bin\Release\net10.0`
+  4. Wait for it to finish. This may take around 1-3 minutes. Once it completes successfully, the client will be built in `./src/TerraAngel/Terraria/bin/Release/net10.0`
 
-<h2>
-Updating
-</h2>
+## Updating
 
 Whenether there is a Terraria update, update Terraria on Steam first, then run `./fast.ps1 -Decompile`
 
@@ -56,21 +62,16 @@ To update TerraAngel and pull any changes, run `./fast.ps1 -Update`
 Then run `./fast.ps1 -Compile` to build the updated client
 
 (Or run `./fast.ps1 -Download -UpdateGame -Decompile -Update -Compile` to do all of these at once)
-<h2>
-Development
-</h2>
+
+## Development
 
 After installing the client, you can edit the source code of the client in `src/TerraAngel/Terraria`
 
 Run `./fast.ps1 -Diff` to create patches based on your changes
 
-<h2>
-Client features
-</h2>
+## Client features
 
-<h3>
-Features for Terraria developers
-</h3>
+### Features for Terraria developers
 
 - Inspector
     - Inspect player information
@@ -109,9 +110,7 @@ Features for Terraria developers
 - Supports any CPU (x64 and x86)
 - See [PLUGINS.md](/PLUGINS.md) for information about plugins
 
-<h3>
-Other useful features
-</h3>
+### Other useful features
 
 - Complete re-write of the chat UI
 ![Terraria_1660961693](https://user-images.githubusercontent.com/87276335/185725363-591a1d7b-a264-4a46-bfb2-96578c8ad6a3.gif)
@@ -138,25 +137,19 @@ Other useful features
 - Some minor optimizations and performance improvements
 - Ability to change FPS cap
 
-<h2>
-Planned features
-</h2>
+## Planned features
 
 - Some epic optimizations
 - UHHHHHHHH
 
-<h2>
-System Requirements
-</h2>
+## System Requirements
 
 Because TerraAngel uses FNA instead of XNA, not all devices are compatible
 
 - Windows 7+
 - OpenGL 3.0+ or D3D11
 
-<h2>
-How to Contribute
-</h2>
+## How to Contribute
 
   1. Fork the repository to your own GitHub account.
   2. Make the desired changes in your forked repository.
@@ -165,8 +158,6 @@ How to Contribute
 
 We welcome contributions of all kinds, including code improvements, bug fixes, and new features.
 
-<h2>
-Questions?
-</h2>
+## Questions?
 
 Open an issue
